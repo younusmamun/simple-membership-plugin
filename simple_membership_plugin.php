@@ -20,16 +20,14 @@ add_action( 'cmb2_admin_init', 'cmb2_sample_metaboxes' );
 
 function cmb2_sample_metaboxes() {
 
-
 	$cmb = new_cmb2_box( array(
 		'id'            => 'test_metabox',
 		'title'         => __( 'Test Metabox', 'cmb2' ),
-		'object_types'  => array( 'page','post' ), // Post type
+		'object_types'  => array( 'page','post', ), // Post type
 		'context'       => 'normal',
 		'priority'      => 'high',
 		'show_names'    => true, 
 	) );
-
 
     $cmb->add_field( array(
 		'name' => esc_html__( 'Premium', 'cmb2' ),
@@ -38,26 +36,22 @@ function cmb2_sample_metaboxes() {
 		'type' => 'checkbox',
 	) );
 
-	
-
 	$terms = get_terms( array(
 		'taxonomy' => 'departments',
 		'hide_empty' => false,
 	) );
+
 	$term_id = [];
 	foreach($terms as $term){
 		$term_id[] =  $term->term_id;
 	}
 
-
 	$term_name = [];
 	foreach($terms as $term){
 		$term_name[] =  $term->name;
 	}
-	
 
 	$terms_id_and_name = array_combine($term_id, $term_name);
-	
 
 	$cmb->add_field( array(
 		'name'    => 'Select membershhip',
@@ -66,80 +60,77 @@ function cmb2_sample_metaboxes() {
 		'type'    => 'pw_multiselect',
 		'options' => $terms_id_and_name
 	) );
-
-
-
 }	
-
-
-
-function add_read_more_button($content){
-
-	global $post;
-	$premium_post = get_post_meta($post->ID, 'premium', true);
-	$selected_elegible_users = get_post_meta($post->ID, 'selected_user', true);
-
-	if($premium_post ){
-
-		if(is_user_logged_in()){
-			$logedin_user_name = wp_get_current_user();
-			$final_user_name = $logedin_user_name->user_login;
-
-			if(in_array($final_user_name, $selected_elegible_users)){
-				echo 'User ID: ' . get_current_user_id();
-				$content .= 'premium content and user loged in';
-				return $content;
-			}else{
-				?>
-				<p>You are loged in but not permitted for this content</p>
-				<?php
-			}	
-		}else{
-			
-			?>
-				<p>This content is premium. If you want to read please login</p>
-				<a href="<?php echo wp_login_url( get_permalink() ); ?>" title="Login"> Login</a>
-			<?php
-		}
-		
-	}else{
-		return $content;
-	}
-}
-
-//add_action('the_content','add_read_more_button');
-
-
-
 
 
 function add_read_more_button2($content){
 
-
 	global $post;
+
 	$premium_post = get_post_meta($post->ID, 'premium', true);
 	$selected_memberships_term_id = get_post_meta($post->ID, 'selected_user12', true);
-	var_dump($selected_memberships_term_id);
-	// 9->5,6->.1
+	//var_dump($selected_memberships_term_id);
 
-	
-	//$selected_memberships_term_id = array("9","6");
+	$category_with_post = get_the_category($post->ID);
+	//var_dump($category_with_post);
+
+	$categories_id_in_post = [];
+	foreach($category_with_post as $post){
+		$categories_id_in_post[]=$post->term_id;
+		//var_dump($arr);
+	}
+
+	var_dump($categories_id_in_post);
+
+	$selected_memberships_in_categories = [];
+	foreach ($categories_id_in_post as $id){
+		//get_term_meta($id);
+		$selected_memberships_in_categories[]= get_term_meta($id);
+	}
+	//var_dump($selected_memberships_in_categories);
+
+$arr = $selected_memberships_in_categories;
+
+
+
+var_dump($arr);
+$var2 = array_values(array_filter($selected_memberships_in_categories));
+//print_r(array_values(array_filter($arr)));
+var_dump($var2);
+var_dump($var2[0]['selected_user_in_category']);
+
+
+die();
+
+
+
+
+
+	$category_id_with_membership = $category_with_post[0]->term_id;
+	//var_dump($category_id_with_membership);
+
+	$selected_membership_in_category = get_term_meta($categories_id_in_post[2]);
+	var_dump($selected_membership_in_category);
+	$term_vals23 = get_term_meta(4);
+	var_dump($term_vals23);
+	die();
+
 	$all_selected_user_in_post = [];
-		foreach($selected_memberships_term_id as $term_id){
-		
-		  $term_vals = get_term_meta($term_id);
+	foreach($selected_memberships_term_id as $term_id){
 	
-		 // $all_selected_user_in_post = [];
-		  foreach($term_vals as $key=>$val){
-	
-			  $selected_user_in_post = $val[0];
-			  var_dump($selected_user_in_post);
-			  $final_selected_user_in_post = unserialize($selected_user_in_post);
-			  $all_selected_user_in_post = array_merge($all_selected_user_in_post, $final_selected_user_in_post);
-			  var_dump($all_selected_user_in_post);
-	
-		  }
+		$term_vals = get_term_meta($term_id);
+
+		// $all_selected_user_in_post = [];
+		foreach($term_vals as $key=>$val){
+
+			$selected_user_in_post = $val[0];
+			//var_dump($selected_user_in_post);
+			$final_selected_user_in_post = unserialize($selected_user_in_post);
+			$all_selected_user_in_post = array_merge($all_selected_user_in_post, $final_selected_user_in_post);
+			//var_dump($all_selected_user_in_post);
+
 		}
+	}
 	
 
 	if($premium_post ){
@@ -148,11 +139,11 @@ function add_read_more_button2($content){
 			$logedin_user_value= wp_get_current_user();
 			
 			$current_logedin_user_id = strval($logedin_user_value->ID);
-			var_dump($current_logedin_user_id);
+			//var_dump($current_logedin_user_id);
 			
 
 			if(in_array($current_logedin_user_id, $all_selected_user_in_post)){
-				echo 'User ID: ' . get_current_user_id();
+				//echo 'User ID: ' . get_current_user_id();
 				$content .= 'premium content and user loged in';
 				return $content;
 			}else{
@@ -218,7 +209,10 @@ function custom_taxonomy() {
   add_action( 'init', 'custom_taxonomy', 0 );
 
 
-   /**
+
+
+
+/**
  * Admin page for the 'departments' taxonomy
  */
 function cb_add_departments_taxonomy_admin_page() {
@@ -235,7 +229,7 @@ function cb_add_departments_taxonomy_admin_page() {
   }
   add_action( 'admin_menu', 'cb_add_departments_taxonomy_admin_page' );
 
-  /**
+/**
  * Unsets the 'posts' column and adds a 'users' column on the manage departments admin page.
  */
 function cb_manage_departments_user_column( $columns ) {
@@ -248,7 +242,7 @@ function cb_manage_departments_user_column( $columns ) {
   }
   add_filter( 'manage_edit-departments_columns', 'cb_manage_departments_user_column' );
 
-  /**
+/**
  * @param string $display WP just passes an empty string here.
  * @param string $column The name of the custom column.
  * @param int $term_id The ID of the term being displayed in the table.
@@ -265,8 +259,10 @@ function cb_manage_departments_column( $display, $column, $term_id ) {
 
 
 
+/** 
+  * Add metabox in user membership  page 
+*/ 
 
-  
 
   add_action( 'cmb2_admin_init', 'yourprefix_register_taxonomy_metabox' ); 
  /** 
@@ -282,7 +278,7 @@ function cb_manage_departments_column( $display, $column, $term_id ) {
  		'id'               => $prefix . 'edit', 
  		'title'            => esc_html__( 'Category Metabox', 'cmb2' ), // Doesn't output for term boxes 
  		'object_types'     => array( 'term' ), // Tells CMB2 to use term_meta vs post_meta 
- 		'taxonomies'       => array( 'departments' ), // Tells CMB2 which taxonomies should have these fields 
+ 		'taxonomies'       => array( 'departments', ), // Tells CMB2 which taxonomies should have these fields 
  		// 'new_term_section' => true, // Will display in the "Add New Category" section 
  	) ); 
    
@@ -313,6 +309,62 @@ function cb_manage_departments_column( $display, $column, $term_id ) {
 
 
 
+
+
+/** 
+  * Add metabox in category page 
+*/ 
+
+
+
+ add_action( 'cmb2_admin_init', 'yourprefix_register_taxonomy_metabox_for_category' ); 
+ /** 
+  * Hook in and add a metabox to add fields to taxonomy terms 
+  */ 
+ function yourprefix_register_taxonomy_metabox_for_category() { 
+ 	$prefix = 'yourprefix_term_'; 
+  
+ 	/** 
+ 	 * Metabox to add fields to categories and tags 
+ 	 */ 
+ 	$cmb_term = new_cmb2_box( array( 
+ 		'id'               => $prefix . 'edit2', 
+ 		'title'            => esc_html__( 'Category Metabox', 'cmb2' ), // Doesn't output for term boxes 
+ 		'object_types'     => array( 'term' ), // Tells CMB2 to use term_meta vs post_meta 
+ 		'taxonomies'       => array( 'category', ), // Tells CMB2 which taxonomies should have these fields 
+ 		// 'new_term_section' => true, // Will display in the "Add New Category" section 
+ 	) ); 
+   
+
+	 $terms = get_terms( array(
+		'taxonomy' => 'departments',
+		'hide_empty' => false,
+	) );
+
+	$term_id = [];
+	foreach($terms as $term){
+		$term_id[] =  $term->term_id;
+	}
+
+	$term_name = [];
+	foreach($terms as $term){
+		$term_name[] =  $term->name;
+	}
+
+	$terms_id_and_name = array_combine($term_id, $term_name);
+
+	$cmb_term->add_field( array(
+		'name'    => 'Select membershhip',
+		'id'      => 'selected_user_in_category',
+		'desc'    => 'Select user. Drag to reorder.',
+		'type'    => 'pw_multiselect',
+		'options' => $terms_id_and_name
+	) );
+
+	 
+
+  
+ } 
 
 
 

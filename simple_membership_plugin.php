@@ -63,6 +63,9 @@ function cmb2_sample_metaboxes() {
 }	
 
 
+
+
+
 function add_read_more_button2($content){
 
 	global $post;
@@ -89,31 +92,122 @@ function add_read_more_button2($content){
 	}
 	//var_dump($selected_memberships_in_categories);
 
-$arr = $selected_memberships_in_categories;
+	
+
+//$arr = $selected_memberships_in_categories;
 
 
 
-var_dump($arr);
-$var2 = array_values(array_filter($selected_memberships_in_categories));
+//var_dump($arr);
+$remove_empty_value = array_values(array_filter($selected_memberships_in_categories));
 //print_r(array_values(array_filter($arr)));
-var_dump($var2);
-var_dump($var2[0]['selected_user_in_category']);
+//var_dump($remove_empty_value);
+//var_dump($remove_empty_value[0]['selected_user_in_category']);
+///$selcted_membership_in category_serialixe_array = 
+//$serialized_value = $remove_empty_value[0]['selected_user_in_category'];
+//var_dump($serialized_value);
+//$final_selected_user_in_post = unserialize($serialized_value);
+//var_dump($final_selected_user_in_post);
+
+$membership_in_cat = [];
+foreach($remove_empty_value as $key=>$seria_value){
+	//var_dump($seria_value['selected_user_in_category'][0]);
+	$unseria_membership = $seria_value['selected_user_in_category'][0];
+	//var_dump(unserialize($unseria_membership));
+	$membership_in_cat  [] = unserialize($unseria_membership);
+	//var_dump($membership_in_cat);
+	//$membership_in_cat [] = unserialize($seria_value);	
+	//var_dump($membership_in_cat);
+    //var_dump(unserialize($seria_value));	
+}
+$membership_id_all_in_cat = [];
+foreach($membership_in_cat as $cat){
+	//var_dump($cat);
+	foreach ($cat as $c){
+		$membership_id_all_in_cat [] = $c;
+	}
+		
+}
+//var_dump($membership_id_all_in_cat);
 
 
-die();
+
+
+/**
+ * get user by membership id ====> in category
+ */
+
+
+
+$user_data_unse_all = [];
+foreach($membership_id_all_in_cat as $membership){
+	$user = get_term_meta($membership);
+	//var_dump($user['selected_user11']);
+	$user_data_serialize = $user['selected_user11'];
+	//var_dump($user_data_serialize);
+	$user_data_unse_all [] = $user_data_serialize;
+	//$user_data_unserialize = unserialize($user_data_serialize);
+	//var_dump($user_data_unserialize);
+}
+//var_dump($user);
+//var_dump($user_data_unse_all);
+
+
+$all_user_in_post_membership = [];
+foreach($user_data_unse_all as $key=>$users){
+	//var_dump(unserialize($users[0]));
+	$all_user_in_post_membership [] = unserialize($users[0]);
+	//var_dump($users[0]);
+}
+//var_dump($all_user_in_post_membership);
+
+$user_id_all_in_category = [];
+foreach($all_user_in_post_membership as $user_all_in_mem){
+	//var_dump($user_all_in_mem);
+	foreach($user_all_in_mem as $user_all){
+		$user_id_all_in_category [] = $user_all;
+	}
+	//$user_id_all [] = ;
+}
+
+
+var_dump($user_id_all_in_category);
+
+
+//die();
+// foreach($membership_in_cat as $kay->$membership){
+// 	//$membership[]
+// } 
 
 
 
 
 
-	$category_id_with_membership = $category_with_post[0]->term_id;
-	//var_dump($category_id_with_membership);
 
-	$selected_membership_in_category = get_term_meta($categories_id_in_post[2]);
-	var_dump($selected_membership_in_category);
-	$term_vals23 = get_term_meta(4);
-	var_dump($term_vals23);
-	die();
+
+
+
+	// $category_id_with_membership = $category_with_post[0]->term_id;
+	// //var_dump($category_id_with_membership);
+
+	// $selected_membership_in_category = get_term_meta($categories_id_in_post[2]);
+	// var_dump($selected_membership_in_category);
+	// $term_vals23 = get_term_meta(4);
+	// var_dump($term_vals23);
+	// die();
+
+
+
+
+
+
+
+
+	/**
+	 * get user by membership id =====> in post
+	 */
+
+
 
 	$all_selected_user_in_post = [];
 	foreach($selected_memberships_term_id as $term_id){
@@ -132,6 +226,17 @@ die();
 		}
 	}
 	
+	var_dump($all_selected_user_in_post);
+
+	$all_user_in_post = array_merge($all_selected_user_in_post,$user_id_all_in_category);
+	var_dump($all_user_in_post);
+
+	
+	/**
+	 * Logic to display post content
+	 */
+
+
 
 	if($premium_post ){
 
@@ -142,7 +247,7 @@ die();
 			//var_dump($current_logedin_user_id);
 			
 
-			if(in_array($current_logedin_user_id, $all_selected_user_in_post)){
+			if(in_array($current_logedin_user_id, $all_user_in_post)){
 				//echo 'User ID: ' . get_current_user_id();
 				$content .= 'premium content and user loged in';
 				return $content;
@@ -169,7 +274,12 @@ add_action('the_content','add_read_more_button2');
 
 
 
-// Register Custom Taxonomy
+	/**
+	 * Register Custom Taxonomy (membership) in user
+	 */
+
+
+
 function custom_taxonomy() {
 
 	$labels = array(
@@ -229,6 +339,8 @@ function cb_add_departments_taxonomy_admin_page() {
   }
   add_action( 'admin_menu', 'cb_add_departments_taxonomy_admin_page' );
 
+
+
 /**
  * Unsets the 'posts' column and adds a 'users' column on the manage departments admin page.
  */
@@ -241,6 +353,7 @@ function cb_manage_departments_user_column( $columns ) {
 	return $columns;
   }
   add_filter( 'manage_edit-departments_columns', 'cb_manage_departments_user_column' );
+
 
 /**
  * @param string $display WP just passes an empty string here.
@@ -283,6 +396,8 @@ function cb_manage_departments_column( $display, $column, $term_id ) {
  	) ); 
    
 
+
+
 	 $all_users_data = get_users();
 	 $users_id = [];
 	 foreach($all_users_data as $user){	
@@ -311,8 +426,11 @@ function cb_manage_departments_column( $display, $column, $term_id ) {
 
 
 
-/** 
+/**
+ * 
+ *  
   * Add metabox in category page 
+**
 */ 
 
 

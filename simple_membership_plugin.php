@@ -72,201 +72,116 @@ function add_read_more_button2($content){
 
 	$premium_post = get_post_meta($post->ID, 'premium', true);
 	$selected_memberships_term_id = get_post_meta($post->ID, 'selected_user12', true);
-	//var_dump($selected_memberships_term_id);
 
 	$category_with_post = get_the_category($post->ID);
-	//var_dump($category_with_post);
 
 	$categories_id_in_post = [];
 	foreach($category_with_post as $post){
 		$categories_id_in_post[]=$post->term_id;
-		//var_dump($arr);
 	}
-
-	var_dump($categories_id_in_post);
 
 	$selected_memberships_in_categories = [];
 	foreach ($categories_id_in_post as $id){
-		//get_term_meta($id);
 		$selected_memberships_in_categories[]= get_term_meta($id);
 	}
-	//var_dump($selected_memberships_in_categories);
 
-	
-
-//$arr = $selected_memberships_in_categories;
-
-
-
-//var_dump($arr);
 $remove_empty_value = array_values(array_filter($selected_memberships_in_categories));
-//print_r(array_values(array_filter($arr)));
-//var_dump($remove_empty_value);
-//var_dump($remove_empty_value[0]['selected_user_in_category']);
-///$selcted_membership_in category_serialixe_array = 
-//$serialized_value = $remove_empty_value[0]['selected_user_in_category'];
-//var_dump($serialized_value);
-//$final_selected_user_in_post = unserialize($serialized_value);
-//var_dump($final_selected_user_in_post);
 
 $membership_in_cat = [];
 foreach($remove_empty_value as $key=>$seria_value){
-	//var_dump($seria_value['selected_user_in_category'][0]);
 	$unseria_membership = $seria_value['selected_user_in_category'][0];
-	//var_dump(unserialize($unseria_membership));
 	$membership_in_cat  [] = unserialize($unseria_membership);
-	//var_dump($membership_in_cat);
-	//$membership_in_cat [] = unserialize($seria_value);	
-	//var_dump($membership_in_cat);
-    //var_dump(unserialize($seria_value));	
 }
 $membership_id_all_in_cat = [];
 foreach($membership_in_cat as $cat){
-	//var_dump($cat);
 	foreach ($cat as $c){
 		$membership_id_all_in_cat [] = $c;
 	}
 		
 }
-//var_dump($membership_id_all_in_cat);
-
-
 
 
 /**
  * get user by membership id ====> in category
  */
 
-
-
 $user_data_unse_all = [];
 foreach($membership_id_all_in_cat as $membership){
 	$user = get_term_meta($membership);
-	//var_dump($user['selected_user11']);
 	$user_data_serialize = $user['selected_user11'];
-	//var_dump($user_data_serialize);
 	$user_data_unse_all [] = $user_data_serialize;
-	//$user_data_unserialize = unserialize($user_data_serialize);
-	//var_dump($user_data_unserialize);
 }
-//var_dump($user);
-//var_dump($user_data_unse_all);
 
 
 $all_user_in_post_membership = [];
 foreach($user_data_unse_all as $key=>$users){
-	//var_dump(unserialize($users[0]));
 	$all_user_in_post_membership [] = unserialize($users[0]);
-	//var_dump($users[0]);
 }
-//var_dump($all_user_in_post_membership);
 
 $user_id_all_in_category = [];
 foreach($all_user_in_post_membership as $user_all_in_mem){
-	//var_dump($user_all_in_mem);
 	foreach($user_all_in_mem as $user_all){
 		$user_id_all_in_category [] = $user_all;
 	}
-	//$user_id_all [] = ;
 }
 
 
-var_dump($user_id_all_in_category);
-
-
-//die();
-// foreach($membership_in_cat as $kay->$membership){
-// 	//$membership[]
-// } 
+/**
+ * get user by membership id =====> in post
+ */
 
 
 
+$all_selected_user_in_post = [];
+foreach($selected_memberships_term_id as $term_id){
 
+	$term_vals = get_term_meta($term_id);
 
+	foreach($term_vals as $key=>$val){
 
-
-
-
-	// $category_id_with_membership = $category_with_post[0]->term_id;
-	// //var_dump($category_id_with_membership);
-
-	// $selected_membership_in_category = get_term_meta($categories_id_in_post[2]);
-	// var_dump($selected_membership_in_category);
-	// $term_vals23 = get_term_meta(4);
-	// var_dump($term_vals23);
-	// die();
-
-
-
-
-
-
-
-
-	/**
-	 * get user by membership id =====> in post
-	 */
-
-
-
-	$all_selected_user_in_post = [];
-	foreach($selected_memberships_term_id as $term_id){
-	
-		$term_vals = get_term_meta($term_id);
-
-		// $all_selected_user_in_post = [];
-		foreach($term_vals as $key=>$val){
-
-			$selected_user_in_post = $val[0];
-			//var_dump($selected_user_in_post);
-			$final_selected_user_in_post = unserialize($selected_user_in_post);
-			$all_selected_user_in_post = array_merge($all_selected_user_in_post, $final_selected_user_in_post);
-			//var_dump($all_selected_user_in_post);
-
-		}
+		$selected_user_in_post = $val[0];
+		$final_selected_user_in_post = unserialize($selected_user_in_post);
+		$all_selected_user_in_post = array_merge($all_selected_user_in_post, $final_selected_user_in_post);
 	}
-	
-	var_dump($all_selected_user_in_post);
+}
 
-	$all_user_in_post = array_merge($all_selected_user_in_post,$user_id_all_in_category);
-	var_dump($all_user_in_post);
-
-	
-	/**
-	 * Logic to display post content
-	 */
+$all_user_in_post = array_merge($all_selected_user_in_post,$user_id_all_in_category);
 
 
 
-	if($premium_post ){
+/**
+ * Logic to display post content
+ */
 
-		if(is_user_logged_in()){
-			$logedin_user_value= wp_get_current_user();
-			
-			$current_logedin_user_id = strval($logedin_user_value->ID);
-			//var_dump($current_logedin_user_id);
-			
 
-			if(in_array($current_logedin_user_id, $all_user_in_post)){
-				//echo 'User ID: ' . get_current_user_id();
-				$content .= 'premium content and user loged in';
-				return $content;
-			}else{
-				?>
-				<p>You are loged in but not permitted for this content</p>
-				<?php
-			}	
-		}else{
-			
-			?>
-				<p>This content is premium. If you want to read please login</p>
-				<a href="<?php echo wp_login_url( get_permalink() ); ?>" title="Login"> Login</a>
-			<?php
-		}
+
+if($premium_post ){
+
+	if(is_user_logged_in()){
+		$logedin_user_value= wp_get_current_user();
 		
+		$current_logedin_user_id = strval($logedin_user_value->ID);
+		
+
+		if(in_array($current_logedin_user_id, $all_user_in_post)){
+			$content .= 'premium content and user loged in';
+			return $content;
+		}else{
+			?>
+			<p>You are loged in but not permitted for this content</p>
+			<?php
+		}	
 	}else{
-		return $content;
+		
+		?>
+			<p>This content is premium. If you want to read please login</p>
+			<a href="<?php echo wp_login_url( get_permalink() ); ?>" title="Login"> Login</a>
+		<?php
 	}
+	
+}else{
+	return $content;
+}
 }
 
 add_action('the_content','add_read_more_button2');
@@ -315,8 +230,8 @@ function custom_taxonomy() {
 	);
 	register_taxonomy( 'departments', 'user', $args );
   
-  }
-  add_action( 'init', 'custom_taxonomy', 0 );
+}
+add_action( 'init', 'custom_taxonomy', 0 );
 
 
 
@@ -336,8 +251,8 @@ function cb_add_departments_taxonomy_admin_page() {
 	  'edit-tags.php?taxonomy=' . $tax->name
 	);
   
-  }
-  add_action( 'admin_menu', 'cb_add_departments_taxonomy_admin_page' );
+}
+add_action( 'admin_menu', 'cb_add_departments_taxonomy_admin_page' );
 
 
 
@@ -353,6 +268,8 @@ function cb_manage_departments_user_column( $columns ) {
 	return $columns;
   }
   add_filter( 'manage_edit-departments_columns', 'cb_manage_departments_user_column' );
+
+
 
 
 /**
@@ -384,9 +301,9 @@ function cb_manage_departments_column( $display, $column, $term_id ) {
  function yourprefix_register_taxonomy_metabox() { 
  	$prefix = 'yourprefix_term_'; 
   
- 	/** 
- 	 * Metabox to add fields to categories and tags 
- 	 */ 
+/** 
+ * Metabox to add fields to categories and tags 
+*/ 
  	$cmb_term = new_cmb2_box( array( 
  		'id'               => $prefix . 'edit', 
  		'title'            => esc_html__( 'Category Metabox', 'cmb2' ), // Doesn't output for term boxes 
@@ -423,16 +340,9 @@ function cb_manage_departments_column( $display, $column, $term_id ) {
 
 
 
-
-
-
-/**
- * 
- *  
+/** 
   * Add metabox in category page 
-**
 */ 
-
 
 
  add_action( 'cmb2_admin_init', 'yourprefix_register_taxonomy_metabox_for_category' ); 
@@ -477,22 +387,9 @@ function cb_manage_departments_column( $display, $column, $term_id ) {
 		'desc'    => 'Select user. Drag to reorder.',
 		'type'    => 'pw_multiselect',
 		'options' => $terms_id_and_name
-	) );
-
-	 
-
-  
- } 
+	) );	
+} 
 
 
-
-
-
-
-
-
-
-	
-	
 
 
